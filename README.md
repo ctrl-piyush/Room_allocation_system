@@ -49,14 +49,19 @@ Room_allocation_system/
    ```bash
    git clone https://github.com/ctrl-piyush/Room_allocation_system.git
    cd Room_allocation_system
+   
 2.Create and activate a virtual environment
   python -m venv venv
   venv\Scripts\activate   # On Windows
+  
 3.Install dependencies
   pip install -r requirements.txt
+  
 4.Initialize the database
   python database.py
+  
 5.Run the application
   python app.py
+  
 6.Open in browser
   Visit http://127.0.0.1:5000
