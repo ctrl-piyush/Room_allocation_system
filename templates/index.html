@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Room Allocation Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 850px;
+            width: 100%;
+            background: #ffffff22;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+
+        button {
+            background-color: #00b894;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #019875;
+        }
+
+        .search {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search input {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            width: 60%;
+            min-width: 250px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .room-button {
+            padding: 6px 12px;
+            background-color: #6c5ce7;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .room-button:hover {
+            background-color: #5a4bd1;
+        }
+
+        table {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        td, th {
+            border: 1px solid #ccc;
+            padding: 15px;
+            text-align: center;
+        }
+
+        td:hover {
+            background-color: #f1f2f6;
+        }
+
+        #result {
+            margin-top: 30px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Room Allocation System</h1>
+
+        <button onclick="allocateStudents()">Allocate Students</button>
+
+        <div class="search">
+            <input type="text" id="studentQuery" placeholder="Search Student ID or Name">
+            <button onclick="searchStudent()">Search</button>
+        </div>
+
+        <div class="button-group">
+            <button onclick="window.location.href='/stats'">View Stats</button>
+            <button onclick="window.location.href='/search'">Advanced Search</button>
+            <button onclick="window.location.href='/upload'">Upload CSV</button>
+            <button onclick="window.location.href='/export'">Export to Excel</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function allocateStudents() {
+            fetch("/allocate", { method: "POST" })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.message);
+
+                    const container = document.getElementById("result");
+                    let html = `<h2>Allocation Summary</h2>`;
+                    html += `<p>${data.message}</p>`;
+                    html += `<table><tr><th>Room ID</th><th>Student Count</th><th>View Room</th></tr>`;
+                    for (let room_id in data.rooms) {
+                        html += `
+                            <tr>
+                                <td>${room_id}</td>
+                                <td>${data.rooms[room_id].length}</td>
+                                <td><button class="room-button" onclick="window.location.href='/view_room?room_id=${room_id}'">View Room</button></td>
+                            </tr>
+                        `;
+                    }
+                    html += `</table>`;
+                    container.innerHTML = html;
+                });
+        }
+
+        function searchStudent() {
+            const query = document.getElementById("studentQuery").value;
+            fetch(`/search_student?query=${query}`)
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById("result");
+                    if (data.error) {
+                        container.innerHTML = `<p>${data.error}</p>`;
+                    } else {
+                        container.innerHTML = `
+                            <h2>Student Info</h2>
+                            <p><strong>ID:</strong> ${data.Student.StudentID}</p>
+                            <p><strong>Name:</strong> ${data.Student.Name}</p>
+                            <p><strong>Year:</strong> ${data.Student.Year}</p>
+                            <p><strong>Department:</strong> ${data.Student.Department}</p>
+                            <p><strong>Room:</strong> ${data.RoomID}</p>
+                            <button class="room-button" onclick="window.location.href='/view_room?room_id=${data.RoomID}'">View Room</button>
+                        `;
+                    }
+                });
+        }
+    </script>
+</body>
+</html>

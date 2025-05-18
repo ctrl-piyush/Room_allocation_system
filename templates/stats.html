@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>System Statistics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f4f4;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2d3436;
+        }
+
+        .summary {
+            margin-bottom: 40px;
+        }
+
+        .summary p {
+            font-size: 1.2em;
+            color: #636e72;
+        }
+
+        canvas {
+            background-color: #ffffff;
+            border: 1px solid #dcdde1;
+            padding: 15px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Room Allocation Statistics</h1>
+    <div class="summary">
+        <p><strong>Total Students:</strong> {{ total_students }}</p>
+        <p><strong>Total Rooms:</strong> {{ total_rooms }}</p>
+        <p><strong>Total Allocations:</strong> {{ total_alloc }}</p>
+    </div>
+
+    <h2>Room Heat Map (Occupancy)</h2>
+    <canvas id="heatChart" width="700" height="400"></canvas>
+
+    <script>
+        const ctx = document.getElementById('heatChart');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ heat_map | map(attribute=0) | list | tojson }},
+                datasets: [{
+                    label: 'Number of Students in Room',
+                    data: {{ heat_map | map(attribute=1) | list | tojson }},
+                    backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                    borderColor: 'rgba(39, 174, 96, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
